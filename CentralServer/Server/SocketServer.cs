@@ -44,10 +44,19 @@ namespace CentralServer.Server
         {
             try
             {
-
-                var message = JsonConvert.DeserializeObject<SocketMessage>(Encoding.UTF8.GetString(args.Data));
-                message.IpPort = args.IpPort;
-                Task.Run(async () => await SocketMessageHandler.HandleMessage(message, server));
+                if(HostIps.GetHostByIp(args.IpPort) == Hosts.TEACHER_INTERFACE)
+                {
+                    // This should always be an action. The teacher will never send info
+                    var action = JsonConvert.DeserializeObject<SocketAction>(Encoding.UTF8.GetString(args.Data));
+                    Task.Run(async () => await SocketMessageHandler.HandleStartAction(action, server));
+                }
+                else if(HostIps.hosts.Any(x => args.IpPort.Contains(x.Ip)))
+                {
+                    // This should always be info. 
+                    var message = JsonConvert.DeserializeObject<SocketInfoMessage>(Encoding.UTF8.GetString(args.Data));
+                    message.Host = HostIps.hosts.First(x => args.IpPort.Contains(x.Ip));
+                    Task.Run(async () => await SocketMessageHandler.HandleInfo(message, server));
+                }
             }
             catch (Exception)
             {

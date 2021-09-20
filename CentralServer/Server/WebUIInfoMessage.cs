@@ -2,7 +2,7 @@
 {
     public class WebUIInfoMessage
     {
-        public Host Host { get;set }
+        public Host Host { get; set;  }
         public string Message { get; set; }
         public SocketInfoMessageType InfoType { get; set; }
 
