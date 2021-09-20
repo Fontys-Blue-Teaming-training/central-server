@@ -1,29 +1,31 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
+using WatsonWebsocket;
 
 namespace CentralServer.Server
 {
     public static class SocketMessageHandler
     {
 
-        public static void HandleMessage(SocketMessage message)
+        public static async Task HandleMessage(SocketMessage message, WatsonWsServer server)
         {
             switch (message.SocketMessageType)
             {
                 case SocketMessageType.START_ACTION:
-                    HandleStartAction(message);
+                    await HandleStartAction(message, server);
                     break;
                 case SocketMessageType.INFO:
-                    HandleInfo(message);
+                    await HandleInfo(message, server);
                     break;
                 default:
-                    HandleUnknown(message);
+                    await HandleUnknown(message, server);
                     break;
             }
         }
 
-        private static void HandleStartAction(SocketMessage message)
+        private static async Task HandleStartAction(SocketMessage message, WatsonWsServer server)
         {
             // Do some sending
             var action = JsonConvert.DeserializeObject<SocketAction>(message.Data);
@@ -31,15 +33,18 @@ namespace CentralServer.Server
 
         }
 
-        private static void HandleInfo(SocketMessage message)
+        private static async Task HandleInfo(SocketMessage message, WatsonWsServer server)
         {
             // Send data back to the Teacher?
             var socketInfoMessage = JsonConvert.DeserializeObject<SocketInfoMessage>(message.Data);
             Console.WriteLine($"[{socketInfoMessage.Type}] \t {HostIps.GetHostByIp(message.IpPort)} -> {socketInfoMessage.Message}");
 
+            var uiMessage = new WebUIInfoMessage(HostIps.hosts.First(x => message.IpPort.Contains(x.Ip)), socketInfoMessage.Message, socketInfoMessage.Type);
+            await server.SendAsync(message.IpPort, JsonConvert.SerializeObject(uiMessage));
+
         }
 
-        private static void HandleUnknown(SocketMessage message)
+        private static async Task HandleUnknown(SocketMessage message, WatsonWsServer server)
         {
             Console.WriteLine($"[WARNING] \t Received unknown SocketMessageType: {JsonConvert.SerializeObject(message)}");
         }

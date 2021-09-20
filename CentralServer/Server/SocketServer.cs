@@ -8,34 +8,26 @@ using WatsonWebsocket;
 
 namespace CentralServer.Server
 {
-    public class SocketServer
+    public static class SocketServer
     {
-        private readonly WatsonWsServer server;
-        private readonly Host[] hosts;
+        private readonly static WatsonWsServer server = new WatsonWsServer("145.93.164.36", 3002, false);
 
-        public SocketServer(string ip, int port, bool ssl, Host[] hosts)
+        public static void SetupServer()
         {
-            server = new WatsonWsServer(ip, port, ssl);
-            this.hosts = hosts;
-            SetupServer();
-        }
-
-        private void SetupServer()
-        {
-            server.PermittedIpAddresses = hosts.Select(x => x.Ip).ToList();
+            server.PermittedIpAddresses = HostIps.hosts.Select(x => x.Ip).ToList();
             server.ClientConnected += ClientConnected;
             server.ClientDisconnected += ClientDisconnected;
             server.MessageReceived += MessageReceived;
         }
 
-        public async Task StartServer()
+        public static async Task StartServer()
         {
             await server.StartAsync();
         }
 
-        public async Task SendMessage(string ip)
+        public static async Task SendMessage(string ip, string message)
         {
-            await server.SendAsync(server.ListClients().First(x => x.Contains(ip)), "hey!");
+            await server.SendAsync(server.ListClients().First(x => x.Contains(ip)), message);
         }
 
         static void ClientConnected(object sender, ClientConnectedEventArgs args)
@@ -52,11 +44,12 @@ namespace CentralServer.Server
         {
             try
             {
+
                 var message = JsonConvert.DeserializeObject<SocketMessage>(Encoding.UTF8.GetString(args.Data));
                 message.IpPort = args.IpPort;
-                SocketMessageHandler.HandleMessage(message);
+                Task.Run(async () => await SocketMessageHandler.HandleMessage(message, server));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 Console.WriteLine($"[ERROR] \t Received unknown packet from {HostIps.GetHostByIp(args.IpPort)} ({args.IpPort}): {Encoding.UTF8.GetString(args.Data)}");
             }
