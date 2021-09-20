@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Linq;
 
 namespace CentralServer.Server
 {
@@ -34,7 +35,7 @@ namespace CentralServer.Server
         {
             // Send data back to the Teacher?
             var socketInfoMessage = JsonConvert.DeserializeObject<SocketInfoMessage>(message.Data);
-            Console.WriteLine($"[{socketInfoMessage.Type}] \t {socketInfoMessage.Device} -> {socketInfoMessage.Message}");
+            Console.WriteLine($"[{socketInfoMessage.Type}] \t {HostIps.GetHostByIp(message.IpPort)} -> {socketInfoMessage.Message}");
 
         }
 
