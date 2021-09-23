@@ -1,4 +1,5 @@
 ﻿using CentralServer.Server;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +21,7 @@ namespace CentralServer
             {
                 Console.WriteLine("Press enter to send message");
                 Console.ReadLine();
-                await SocketServer.SendMessage(HostIps.hosts.First(x => x.HostName == Hosts.TEACHER_INTERFACE).Ip, "Hey");
+                await SocketServer.SendMessage(HostIps.hosts.First(x => x.HostEnum == Hosts.TEACHER_INTERFACE).Ip, "Hey");
             }
 
 

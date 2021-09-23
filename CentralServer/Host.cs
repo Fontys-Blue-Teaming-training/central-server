@@ -7,12 +7,14 @@ namespace CentralServer
     public class Host
     {
         public string Ip { get; set; }
-        public Hosts HostName { get; set; }
+        public Hosts HostEnum { get; set; }
+        public string HostName { get; set; }
 
-        public Host(Hosts host, string ip)
+        public Host(Hosts host, string ip, string hostName)
         {
             this.Ip = ip;
-            this.HostName = host;
+            this.HostEnum = host;
+            this.HostName = hostName;
         }
     }
 }

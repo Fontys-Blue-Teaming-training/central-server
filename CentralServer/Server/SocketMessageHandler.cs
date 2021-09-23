@@ -16,10 +16,10 @@ namespace CentralServer.Server
 
         public static async Task HandleInfo(SocketInfoMessage message, WatsonWsServer server)
         {
-            Console.WriteLine($"[{message.Type}] \t {message.Host.HostName} -> {message.Message}");
+            Console.WriteLine($"[{message.Type}] \t {message.Host.HostEnum} -> {message.Message}");
 
             var uiMessage = new WebUIInfoMessage(message.Host, message.Message, message.Type);
-            await server.SendAsync(HostIps.hosts.First(x => x.HostName == Hosts.TEACHER_INTERFACE).Ip, JsonConvert.SerializeObject(uiMessage));
+            await server.SendAsync(HostIps.hosts.First(x => x.HostEnum == Hosts.TEACHER_INTERFACE).Ip, JsonConvert.SerializeObject(uiMessage));
 
         }
     }
