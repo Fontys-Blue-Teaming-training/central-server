@@ -1,7 +1,6 @@
-﻿using CentralServer.Server;
-using Newtonsoft.Json;
+﻿using CentralServer.Hosts;
+using CentralServer.Server;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -21,7 +20,7 @@ namespace CentralServer
             {
                 Console.WriteLine("Press enter to send message");
                 Console.ReadLine();
-                await SocketServer.SendMessage(HostIps.hosts.First(x => x.HostEnum == Hosts.TEACHER_INTERFACE).Ip, "Hey");
+                await SocketServer.SendMessage(HostIps.hosts.First(x => x.HostEnum == HostNames.TEACHER_INTERFACE).Ip, "Hey");
             }
 
 

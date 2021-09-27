@@ -1,6 +1,6 @@
-﻿namespace CentralServer.Server
+﻿namespace CentralServer.Messages
 {
-    public enum SocketInfoMessageType
+    public enum InfoMessageType
     {
         INFO = 0,
         WARNING = 1,

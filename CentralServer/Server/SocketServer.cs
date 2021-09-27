@@ -1,6 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using CentralServer.Hosts;
+using CentralServer.Messages;
+using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,7 +28,8 @@ namespace CentralServer.Server
 
         public static async Task SendMessage(string ip, string message)
         {
-            await server.SendAsync(server.ListClients().First(x => x.Contains(ip)), message);
+            JsonConvert.SerializeObject(new WebUIInfoMessage(HostIps.hosts.First(), "DDOS attack detected", InfoMessageType.INFO));
+            await server.SendAsync(server.ListClients().First(x => x.Contains(ip)), JsonConvert.SerializeObject(new WebUIInfoMessage(HostIps.hosts.First(), "DDOS attack detected", InfoMessageType.INFO)));
         }
 
         static void ClientConnected(object sender, ClientConnectedEventArgs args)
@@ -44,16 +46,16 @@ namespace CentralServer.Server
         {
             try
             {
-                if(HostIps.GetHostByIp(args.IpPort) == Hosts.TEACHER_INTERFACE)
+                if(HostIps.GetHostByIp(args.IpPort) == HostNames.TEACHER_INTERFACE)
                 {
                     // This should always be an action. The teacher will never send info
-                    var action = JsonConvert.DeserializeObject<SocketAction>(Encoding.UTF8.GetString(args.Data));
+                    var action = JsonConvert.DeserializeObject<ScenarioMessage>(Encoding.UTF8.GetString(args.Data));
                     Task.Run(async () => await SocketMessageHandler.HandleStartAction(action, server));
                 }
                 else if(HostIps.hosts.Any(x => args.IpPort.Contains(x.Ip)))
                 {
                     // This should always be info. 
-                    var message = JsonConvert.DeserializeObject<SocketInfoMessage>(Encoding.UTF8.GetString(args.Data));
+                    var message = JsonConvert.DeserializeObject<InfoMessage>(Encoding.UTF8.GetString(args.Data));
                     message.Host = HostIps.hosts.First(x => args.IpPort.Contains(x.Ip));
                     Task.Run(async () => await SocketMessageHandler.HandleInfo(message, server));
                 }

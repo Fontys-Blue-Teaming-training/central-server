@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using CentralServer.Hosts;
+using CentralServer.Messages;
+using Newtonsoft.Json;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,18 +10,18 @@ namespace CentralServer.Server
 {
     public static class SocketMessageHandler
     {
-        public static async Task HandleStartAction(SocketAction action, WatsonWsServer server)
+        public static async Task HandleStartAction(ScenarioMessage scenarioMessage, WatsonWsServer server)
         {
             // Do some sending
-            Console.WriteLine($"[ACTION] \t {action}");
+            Console.WriteLine($"[ACTION] \t {scenarioMessage.Action} {scenarioMessage.Scenario}");
         }
 
-        public static async Task HandleInfo(SocketInfoMessage message, WatsonWsServer server)
+        public static async Task HandleInfo(InfoMessage message, WatsonWsServer server)
         {
             Console.WriteLine($"[{message.Type}] \t {message.Host.HostEnum} -> {message.Message}");
 
             var uiMessage = new WebUIInfoMessage(message.Host, message.Message, message.Type);
-            await server.SendAsync(HostIps.hosts.First(x => x.HostEnum == Hosts.TEACHER_INTERFACE).Ip, JsonConvert.SerializeObject(uiMessage));
+            await server.SendAsync(HostIps.hosts.First(x => x.HostEnum == HostNames.TEACHER_INTERFACE).Ip, JsonConvert.SerializeObject(uiMessage));
 
         }
     }
