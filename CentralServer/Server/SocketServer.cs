@@ -11,7 +11,9 @@ namespace CentralServer.Server
 {
     public static class SocketServer
     {
-        private readonly static WatsonWsServer server = new WatsonWsServer("145.93.164.36", 3002, false);
+        private readonly static WatsonWsServer server = new WatsonWsServer("192.168.1.2", 3002, false);
+
+
 
         public static void SetupServer()
         {
