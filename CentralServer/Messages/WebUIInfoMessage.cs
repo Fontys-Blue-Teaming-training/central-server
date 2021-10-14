@@ -4,7 +4,7 @@ namespace CentralServer.Messages
 {
     public class WebUIInfoMessage
     {
-        public Host Host { get; set;  }
+        public Host Host { get; set; }
         public string Message { get; set; }
         public InfoMessageType InfoType { get; set; }
 

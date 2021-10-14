@@ -16,14 +16,12 @@ namespace CentralServer
             SocketServer.SetupServer();
             await SocketServer.StartServer();
             Console.WriteLine("Server started!");
-            while(true)
+            while (true)
             {
                 Console.WriteLine("Press enter to send message");
                 Console.ReadLine();
-                await SocketServer.SendMessage(HostIps.hosts.First(x => x.HostEnum == HostNames.TEACHER_INTERFACE).Ip, "Hey");
+                await SocketServer.SendMessage(HostIps.hosts.First(x => x.HostEnum == HostNames.LINUX_HACKER).Ip);
             }
-
-
             Console.ReadLine();
         }
     }

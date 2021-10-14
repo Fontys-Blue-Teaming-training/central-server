@@ -12,17 +12,24 @@ namespace CentralServer.Server
     {
         public static async Task HandleStartAction(ScenarioMessage scenarioMessage, WatsonWsServer server)
         {
-            // Do some sending
             Console.WriteLine($"[ACTION] \t {scenarioMessage.Action} {scenarioMessage.Scenario}");
+            await server.SendAsync(HostIps.hosts.First(x => x.HostEnum == HostNames.LINUX_HACKER).Ip, JsonConvert.SerializeObject(scenarioMessage));
         }
 
         public static async Task HandleInfo(InfoMessage message, WatsonWsServer server)
         {
-            Console.WriteLine($"[{message.Type}] \t {message.Host.HostEnum} -> {message.Message}");
+            Console.WriteLine($"[{message.Type}] {(message.Type == InfoMessageType.INFO || message.Type == InfoMessageType.DEBUG ? "\t" : "")} \t {message.Host.HostEnum} -> {message.Message}");
 
             var uiMessage = new WebUIInfoMessage(message.Host, message.Message, message.Type);
-            await server.SendAsync(HostIps.hosts.First(x => x.HostEnum == HostNames.TEACHER_INTERFACE).Ip, JsonConvert.SerializeObject(uiMessage));
-
+            if(server.ListClients().Any(x => x.Contains(HostIps.hosts.First(x => x.HostEnum == HostNames.TEACHER_INTERFACE).Ip)))
+            {
+                await server.SendAsync(HostIps.hosts.First(x => x.HostEnum == HostNames.TEACHER_INTERFACE).Ip, JsonConvert.SerializeObject(uiMessage));
+            }
+            else
+            {
+                // Add Queue later..
+                Console.WriteLine($"[ERROR] \t Teacher interface is not connected. Dropping packet...");
+            }
         }
     }
 }
