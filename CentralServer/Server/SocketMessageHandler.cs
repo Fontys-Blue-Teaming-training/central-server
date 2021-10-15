@@ -13,7 +13,8 @@ namespace CentralServer.Server
         public static async Task HandleStartAction(ScenarioMessage scenarioMessage, WatsonWsServer server)
         {
             Console.WriteLine($"[ACTION] \t {scenarioMessage.Action} {scenarioMessage.Scenario}");
-            await server.SendAsync(HostIps.hosts.First(x => x.HostEnum == HostNames.LINUX_HACKER).Ip, JsonConvert.SerializeObject(scenarioMessage));
+            var client = server.ListClients().FirstOrDefault(x => x.Contains(HostIps.hosts.First(x => x.HostEnum == HostNames.LINUX_HACKER).Ip));
+            await server.SendAsync(client, JsonConvert.SerializeObject(scenarioMessage));
         }
 
         public static async Task HandleInfo(InfoMessage message, WatsonWsServer server)
@@ -21,9 +22,10 @@ namespace CentralServer.Server
             Console.WriteLine($"[{message.Type}] {(message.Type == InfoMessageType.INFO || message.Type == InfoMessageType.DEBUG ? "\t" : "")} \t {message.Host.HostEnum} -> {message.Message}");
 
             var uiMessage = new WebUIInfoMessage(message.Host, message.Message, message.Type);
-            if(server.ListClients().Any(x => x.Contains(HostIps.hosts.First(x => x.HostEnum == HostNames.TEACHER_INTERFACE).Ip)))
+            var client = server.ListClients().FirstOrDefault(x => x.Contains(HostIps.hosts.First(x => x.HostEnum == HostNames.TEACHER_INTERFACE).Ip));
+            if (client != default)
             {
-                await server.SendAsync(HostIps.hosts.First(x => x.HostEnum == HostNames.TEACHER_INTERFACE).Ip, JsonConvert.SerializeObject(uiMessage));
+                await server.SendAsync(client, JsonConvert.SerializeObject(uiMessage));
             }
             else
             {
