@@ -2,6 +2,7 @@
 using CentralServer.Messages;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,40 +12,41 @@ namespace CentralServer.Server
 {
     public static class SocketServer
     {
-        private readonly static WatsonWsServer vlanBServer = new WatsonWsServer("192.168.1.2", 3002, false);
-        private readonly static WatsonWsServer vlanAServer = new WatsonWsServer("172.16.1.4", 3002, false);
+        private const bool SHOULD_LOG = false;
+        private readonly static List<string> hostnames = new List<string>
+        {
+            "192.168.1.2",
+            "172.16.1.4"
+        };
+
+        private readonly static WatsonWsServer wsServer = new WatsonWsServer(hostnames, 3002, false);
 
         public static void SetupServer()
         {
-            vlanBServer.PermittedIpAddresses = HostIps.hosts.Select(x => x.Ip).ToList();
-            vlanBServer.ClientConnected += ClientConnected;
-            vlanBServer.ClientDisconnected += ClientDisconnected;
-            vlanBServer.MessageReceived += MessageReceived;
-            vlanAServer.PermittedIpAddresses = HostIps.hosts.Select(x => x.Ip).ToList();
-            vlanAServer.ClientConnected += ClientConnected;
-            vlanAServer.ClientDisconnected += ClientDisconnected;
-            vlanAServer.MessageReceived += MessageReceived;
+            wsServer.PermittedIpAddresses = HostIps.hosts.Select(x => x.Ip).ToList();
+            wsServer.ClientConnected += ClientConnected;
+            wsServer.ClientDisconnected += ClientDisconnected;
+            wsServer.MessageReceived += MessageReceived;
 
-
-            // Enable if Watson logging is needed
-            // vlanBServer.Logger = Logger;
-            // vlanAServer.Logger = Logger;
+            if (SHOULD_LOG)
+            {
+                wsServer.Logger = Logger;
+            }
         }
 
-        //static void Logger(string message)
-        //{
-        //    Console.WriteLine(message);
-        //}
+        private static void Logger(string message)
+        {
+            Console.WriteLine($"[DEBUG] \t {message}");
+        }
 
         public static async Task StartServer()
         {
-            await vlanBServer.StartAsync();
-            await vlanAServer.StartAsync();
+            await wsServer.StartAsync();
         }
 
         public static async Task SendMessage(string ip)
         {
-            await vlanAServer.SendAsync(vlanAServer.ListClients().First(x => x.Contains(ip)), JsonConvert.SerializeObject(new ScenarioMessage() { Action = ScenarioActions.START, Scenario = Scenarios.LINUX_SSH_ATTACK }));
+            await wsServer.SendAsync(wsServer.ListClients().First(x => x.Contains(ip)), JsonConvert.SerializeObject(new ScenarioMessage() { Action = ScenarioActions.START, Scenario = Scenarios.LINUX_SSH_ATTACK }));
         }
 
         static void ClientConnected(object sender, ClientConnectedEventArgs args)
@@ -65,14 +67,14 @@ namespace CentralServer.Server
                 {
                     // This should always be an action. The teacher will never send info
                     var action = JsonConvert.DeserializeObject<ScenarioMessage>(Encoding.UTF8.GetString(args.Data));
-                    Task.Run(async () => await SocketMessageHandler.HandleStartAction(action, vlanAServer));
+                    Task.Run(async () => await SocketMessageHandler.HandleStartAction(action, wsServer));
                 }
                 else if(HostIps.hosts.Any(x => args.IpPort.Contains(x.Ip)))
                 {
                     // This should always be info. 
                     var message = JsonConvert.DeserializeObject<InfoMessage>(Encoding.UTF8.GetString(args.Data));
                     message.Host = HostIps.hosts.First(x => args.IpPort.Contains(x.Ip));
-                    Task.Run(async () => await SocketMessageHandler.HandleInfo(message, vlanBServer));
+                    Task.Run(async () => await SocketMessageHandler.HandleInfo(message, wsServer));
                 }
             }
             catch (Exception)

@@ -12,9 +12,25 @@ namespace CentralServer.Server
     {
         public static async Task HandleStartAction(ScenarioMessage scenarioMessage, WatsonWsServer server)
         {
-            Console.WriteLine($"[ACTION] \t {scenarioMessage.Action} {scenarioMessage.Scenario}");
-            var client = server.ListClients().FirstOrDefault(x => x.Contains(HostIps.hosts.First(x => x.HostEnum == HostNames.LINUX_HACKER).Ip));
-            await server.SendAsync(client, JsonConvert.SerializeObject(scenarioMessage));
+            string client = string.Empty;
+            switch (scenarioMessage.Scenario)
+            {
+                case Scenarios.LINUX_SSH_ATTACK:
+                    client = server.ListClients().FirstOrDefault(x => x.Contains(HostIps.hosts.First(x => x.HostEnum == HostNames.LINUX_HACKER).Ip));
+                    break;
+                default:
+                    break;
+            }
+
+            if(!string.IsNullOrWhiteSpace(client))
+            {
+                Console.WriteLine($"[ACTION] \t {scenarioMessage.Action} {scenarioMessage.Scenario}");
+                await server.SendAsync(client, JsonConvert.SerializeObject(scenarioMessage));
+            }
+            else
+            {
+                Console.WriteLine($"[ERROR] \t Scenario has no host {scenarioMessage.Action} {scenarioMessage.Scenario}! Dropping packet...");
+            }
         }
 
         public static async Task HandleInfo(InfoMessage message, WatsonWsServer server)

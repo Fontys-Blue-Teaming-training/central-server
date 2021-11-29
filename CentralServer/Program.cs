@@ -1,7 +1,5 @@
-﻿using CentralServer.Hosts;
-using CentralServer.Server;
+﻿using CentralServer.Server;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace CentralServer
@@ -16,12 +14,6 @@ namespace CentralServer
             SocketServer.SetupServer();
             await SocketServer.StartServer();
             Console.WriteLine("Server started!");
-            while (true)
-            {
-                Console.WriteLine("Press enter to send message");
-                Console.ReadLine();
-                await SocketServer.SendMessage(HostIps.hosts.First(x => x.HostEnum == HostNames.LINUX_HACKER).Ip);
-            }
             Console.ReadLine();
         }
     }
