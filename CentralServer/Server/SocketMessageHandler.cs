@@ -37,6 +37,24 @@ namespace CentralServer.Server
         {
             Console.WriteLine($"[{message.Type}] {(message.Type == InfoMessageType.INFO || message.Type == InfoMessageType.DEBUG ? "\t" : "")} \t {message.Host.HostEnum} -> {message.Message}");
 
+            if (message.Message == "FLAG COMPLETED" || message.Message == "SCENARIO STARTED")
+            {
+                var studentMachines = HostIps.hosts.Where(x => ((int)x.HostEnum) > 2).ToList();
+                foreach (var studentMachine in studentMachines)
+                {
+                    var studentClient = server.ListClients().FirstOrDefault(x => x.Contains(studentMachine.Ip));
+                    if(studentClient != default)
+                    {
+                        await server.SendAsync(studentClient, JsonConvert.SerializeObject(message));
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[ERROR] \t Coud not find client {studentMachine.HostName} ({studentMachine.Ip}). Dropping packet...");
+                    }
+                }
+                return;
+            }
+
             var uiMessage = new WebUIInfoMessage(message.Host, message.Message, message.Type);
             var client = server.ListClients().FirstOrDefault(x => x.Contains(HostIps.hosts.First(x => x.HostEnum == HostNames.TEACHER_INTERFACE).Ip));
             if (client != default)
