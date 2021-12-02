@@ -12,7 +12,7 @@ namespace CentralServer.Server
 {
     public static class SocketServer
     {
-        private const bool SHOULD_LOG = false;
+        private const bool SHOULD_LOG = true;
         private readonly static List<string> hostnames = new List<string>
         {
             "192.168.1.2",
@@ -42,11 +42,6 @@ namespace CentralServer.Server
         public static async Task StartServer()
         {
             await wsServer.StartAsync();
-        }
-
-        public static async Task SendMessage(string ip)
-        {
-            await wsServer.SendAsync(wsServer.ListClients().First(x => x.Contains(ip)), JsonConvert.SerializeObject(new ScenarioMessage() { Action = ScenarioActions.START, Scenario = Scenarios.LINUX_SSH_ATTACK }));
         }
 
         static void ClientConnected(object sender, ClientConnectedEventArgs args)
