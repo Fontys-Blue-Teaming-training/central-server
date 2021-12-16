@@ -12,6 +12,7 @@ namespace CentralServer.Server
     public static class SocketMessageHandler
     {
         private static Dictionary<HostNames, string> teamHosts = new Dictionary<HostNames, string>();
+        // private static readonly List<QueueMessage> queueMessages = new List<QueueMessage>();
 
         public static async Task HandleStartAction(ScenarioMessage scenarioMessage, WatsonWsServer server)
         {
