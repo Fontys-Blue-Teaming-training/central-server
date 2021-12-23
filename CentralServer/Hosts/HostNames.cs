@@ -4,7 +4,7 @@
     {
         TEACHER_INTERFACE,
         LINUX_HACKER,
-        LINUX_SSH_TARGET,
+        TARGET_MACHINE,
         // Place student interfaces below this
         STUDENT_INTERFACE,
         FORENSICS_MACHINE_1,

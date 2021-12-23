@@ -23,7 +23,7 @@ namespace CentralServer.Server
                     client = server.ListClients().FirstOrDefault(x => x.Contains(HostIps.hosts.First(x => x.HostEnum == HostNames.LINUX_HACKER).Ip));
                     break;
                 case Scenarios.MALWARE:
-                    client = server.ListClients().FirstOrDefault(x => x.Contains(HostIps.hosts.First(x => x.HostEnum == HostNames.LINUX_SSH_TARGET).Ip));
+                    client = server.ListClients().FirstOrDefault(x => x.Contains(HostIps.hosts.First(x => x.HostEnum == HostNames.TARGET_MACHINE).Ip));
                     break;
                 default:
                     break;
