@@ -22,11 +22,14 @@ namespace CentralServer.Server
                 case Scenarios.LINUX_SSH_ATTACK:
                     client = server.ListClients().FirstOrDefault(x => x.Contains(HostIps.hosts.First(x => x.HostEnum == HostNames.LINUX_HACKER).Ip));
                     break;
+                case Scenarios.MALWARE:
+                    client = server.ListClients().FirstOrDefault(x => x.Contains(HostIps.hosts.First(x => x.HostEnum == HostNames.LINUX_SSH_TARGET).Ip));
+                    break;
                 default:
                     break;
             }
 
-            if(!string.IsNullOrWhiteSpace(client))
+            if(!string.IsNullOrWhiteSpace(client) || scenarioMessage.Scenario == Scenarios.FORENSICS)
             {
                 Console.WriteLine($"[ACTION] \t {scenarioMessage.Action} {scenarioMessage.Scenario}");
                 await server.SendAsync(client, JsonConvert.SerializeObject(scenarioMessage));
@@ -44,6 +47,10 @@ namespace CentralServer.Server
                         Console.WriteLine($"[INFO] \t Received STOP message. Resetting teams...");
                         teamHosts = new Dictionary<HostNames, string>();
                     }
+                }
+                else
+                {
+                    Console.WriteLine($"[WARNING] \t No active teams found");
                 }
             }
             else
